@@ -79,7 +79,7 @@ def top_candidates(name: str, choices: list[str], limit: int = 3) -> list[tuple]
     """
     norm_name = normalize_name(name)
     norm_choices = [normalize_name(choice) for choice in choices]
-    results = process.extract(norm_name, norm_choices, 
+    results = process.extract(norm_name, norm_choices,
                               scorer=fuzz.token_sort_ratio, limit=limit)
     return [(choices[index], round(score)) for match, score, index in results]
 

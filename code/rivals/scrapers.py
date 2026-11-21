@@ -58,6 +58,7 @@ def scrape_lakeshore(page) -> list[dict]:
             rows.extend(card_rows("Lakeshore Lattes", category, card.inner_text()))
     return rows
 
+
 def scrape_hilltop(page) -> list[dict]:
     """Hilltop Grind: inside `<div id="menu">`, an `<h2>` and a `<table>` per category.
 
@@ -93,6 +94,7 @@ def scrape_hilltop(page) -> list[dict]:
                          "item": record["Item"], "size": record["size"],
                          "price": clean_price(record["price"])})
     return rows
+
 
 def scrape_canal(page, shop: str = CANAL_SHOP) -> list[dict]:
     """Canal Street Coffee: an order-ahead app. The menu is not in the HTML.
@@ -141,7 +143,8 @@ def scrape_canal(page, shop: str = CANAL_SHOP) -> list[dict]:
         item = page.inner_text("#item-name").strip()
         category = page.inner_text("#item-category").split(" · ")[0].strip()
         for tr in page.query_selector_all("#sizes tbody tr"):
-            size, price = [td.inner_text().strip() for td in tr.query_selector_all("td")]
+            cells = tr.query_selector_all("td")
+            size, price = [td.inner_text().strip() for td in cells]
             rows.append({"cafe": "Canal Street Coffee", "category": category,
                          "item": item, "size": size, "price": clean_price(price)})
     return rows

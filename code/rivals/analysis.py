@@ -156,4 +156,5 @@ def gap_analysis(menus: pd.DataFrame) -> pd.DataFrame:
     gaps["rank"] = gaps["where"].map(rank)
     gaps = gaps.sort_values(["rank", "rivals", "canonical"],
                             ascending=[True, False, True])
-    return gaps[["canonical", "kind", "where", "rivals", "sold_by"]].reset_index(drop=True)
+    columns = ["canonical", "kind", "where", "rivals", "sold_by"]
+    return gaps[columns].reset_index(drop=True)
