@@ -1,8 +1,19 @@
-Write your reflection here.
-
-See reflection.md for what makes a good reflection — be specific, use the
-terminology from this assignment (HTML element, CSS selector, class and id
-selectors, sibling selector, inner_text, attribute, headless browser, waiting for
-JavaScript, crawling, pagination, read_html, melt, fuzzy matching, normalization,
-threshold, human in the loop, merge indicator, gap analysis), and make it
-actionable.
+In this assignment, I learned how normalization works in normalize_name: before comparing names, 
+it applies Unicode NFKD normalization, removes non-ASCII characters, lowercases the text, 
+replaces non-alphanumeric characters with spaces, and filters out FILLER_WORDS. 
+This matters because it standardizes inconsistent menu formatting before text matching.
+ I also learned that fuzzy matching with token_sort_ratio in top_candidates only measures token similarity, 
+ not actual product ingredients. 
+ For example, “Matcha Latte” scores 87 against “Mocha Latte”, 
+ so the threshold (AUTO_MATCH = 90) in match_band and a human in the loop are needed 
+ because high text scores can still represent completely different drinks.
+The hardest part for me was setting up the environment and working under a tight time constraint with only about two hours.
+ I struggled with a 403 push error because I accidentally cloned the template 
+ instead of my fork—requiring a fix with git remote set-url—along with 
+ installing the missing rapidfuzz module and fine-tuning the optional ([SML])? group in the regex for parse_price_line. 
+ I didn’t finish the scrapers (which use a headless browser, CSS selectors, and waiting for JavaScript) 
+ because I spent most of my limited time troubleshooting git configuration and dependency errors.
+Next, I will test CSS selectors like article.menu-card for Lakeshore directly in the browser Console
+ to verify element targeting before writing scrape_lakeshore and checking it with explore.py. 
+ I also want to practice using record_decision and DataFrame merging because accurately storing match decisions and 
+ using the indicator parameter is essential for managing gap analysis.
