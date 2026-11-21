@@ -36,8 +36,12 @@ def add_canonical(menus: pd.DataFrame, matches: pd.DataFrame) -> pd.DataFrame:
     that (`cafe`, `item`) — missing for items the owner has not reviewed yet.
     Every row of `menus` is kept, in order; `menus` itself is not changed.
     """
-    # TODO: your code here
-    pass
+    out = menus.merge(matches[["cafe", "item", "matched_to"]],
+                      on=["cafe", "item"], how="left")
+    out["canonical"] = out["matched_to"]
+    ours = out["cafe"] == OUR_CAFE
+    out.loc[ours, "canonical"] = out.loc[ours, "item"]
+    return out.drop(columns="matched_to")
 
 
 def price_table(menus: pd.DataFrame) -> pd.DataFrame:
@@ -119,5 +123,23 @@ def gap_analysis(menus: pd.DataFrame) -> pd.DataFrame:
     Sorted by `where` ("only them" first, then "only us", then "both"), then
     `rivals` (most first), then `canonical`; plain index.
     """
-    # TODO: your code here
-    pass
+    known = menus.dropna(subset=["canonical"])
+    ours = known[known["cafe"] == OUR_CAFE][["canonical", "kind"]].drop_duplicates()
+    theirs = (known[known["cafe"] != OUR_CAFE]
+              .groupby(["canonical", "kind"])["cafe"]
+              .agg(rivals="nunique",
+                   sold_by=lambda c: ", ".join(sorted(c.unique())))
+              .reset_index())
+
+    gaps = pd.merge(ours, theirs, on=["canonical", "kind"],
+                    how="outer", indicator=True)
+    labels = {"left_only": "only us", "right_only": "only them", "both": "both"}
+    gaps["where"] = gaps["_merge"].astype(str).map(labels)
+    gaps["rivals"] = gaps["rivals"].fillna(0).astype(int)
+    gaps["sold_by"] = gaps["sold_by"].fillna("")
+
+    rank = {"only them": 0, "only us": 1, "both": 2}
+    gaps["rank"] = gaps["where"].map(rank)
+    gaps = gaps.sort_values(["rank", "rivals", "canonical"],
+                            ascending=[True, False, True])
+    return gaps[["canonical", "kind", "where", "rivals", "sold_by"]].reset_index(drop=True)
