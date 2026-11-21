@@ -103,8 +103,22 @@ def compare_prices(prices: pd.DataFrame) -> pd.DataFrame:
 
     Plain index.
     """
-    # TODO: your code here
-    pass
+    rivals = [c for c in prices.columns if c != OUR_CAFE]
+    table = prices.rename(columns={OUR_CAFE: "our_price"})
+    table = table[["our_price"] + rivals]
+
+    has_rival = table[rivals].notna().any(axis=1)
+    table = table[table["our_price"].notna() & has_rival].copy()
+
+    table["rival_avg"] = table[rivals].mean(axis=1).round(2)
+    table["our_position"] = table.apply(
+        lambda r: price_position(r["our_price"], r[rivals].min(),
+                                 r["rival_avg"], r[rivals].max()),
+        axis=1)
+
+    table = table.reset_index()
+    table.columns.name = None
+    return table
 
 
 def gap_analysis(menus: pd.DataFrame) -> pd.DataFrame:
